@@ -75,7 +75,7 @@ DECLARE @folderPath nvarchar(MAX) = (
 
 -- @cmdDirBackupFolder lenh cmd dir lay list file .bak ben trong folder backup
 DECLARE @cmdDirBackupFolder nvarchar(MAX) = N'EXEC XP_CMDSHELL ''dir ' +  @folderPath + N' /b'''
-PRINT @cmdDirBackupFolder
+
 
 -- @dirBackupFolder table chua ten file trong folder backup
 DECLARE @dirBackupFolder table(dirFiles nvarchar(MAX))
@@ -141,7 +141,6 @@ BEGIN
 	END
 
 	DECLARE @whatIsThisShit nvarchar(MAX) = 'RESTORE FILELISTONLY FROM DISK = ''' + @bakfilePath + ''''
-	PRINT @whatIsThisShit
 	INSERT INTO #FileListHeaders
 		EXEC(@whatisThisShit)
 
