@@ -34,8 +34,11 @@ IF cast(cast(SERVERPROPERTY('ProductVersion') as char(2)) as float) > 12 -- Grea
 BEGIN
     ALTER TABLE #FileListHeaders ADD SnapshotURL    nvarchar(360) NULL
 END
+DECLARE @b nvarchar(max) = 'D:\Test-DBs\Backup\29-10-2020\AAA.bak'
+DECLARE @a nvarchar(max) = 'RESTORE FILELISTONLY FROM DISK = N''' + @b + ''''
+PRINT @a
 INSERT INTO #FileListHeaders
-EXEC ('RESTORE FILELISTONLY FROM DISK = N''D:\Test-DBs\Backup\29-10-2020\AAA.bak''')
+EXEC (@a)
 
 SELECT * FROM #FileListHeaders
 
