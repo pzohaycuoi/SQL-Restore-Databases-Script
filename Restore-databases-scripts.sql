@@ -78,7 +78,8 @@ DECLARE @folderPath nvarchar(MAX) = (
 SELECT @folderPath
 
 -- @cmdDirBackupFolder lenh cmd dir lay list file .bak ben trong folder backup
-DECLARE @cmdDirBackupFolder nvarchar(MAX) = N'EXEC XP_CMDSHELL ''dir' +  @folderPath + N'/b'''
+DECLARE @cmdDirBackupFolder nvarchar(MAX) = N'EXEC XP_CMDSHELL ''dir ' +  @folderPath + N' /b'''
+PRINT @cmdDirBackupFolder
 
 -- @dirBackupFolder table chua ten file trong folder backup
 DECLARE @dirBackupFolder table(dirFiles nvarchar(MAX))
@@ -88,6 +89,7 @@ UPDATE @dirBackupFolder SET dirFiles = REPLACE(dirFiles, RIGHT(dirFiles, 4), '')
 
 -- Set path chua file mdf va ldf here
 DECLARE @fileName nvarchar(MAX)
+		,@DBName nvarchar(MAX)
 		,@bakfilePath nvarchar(MAX)
 		,@mdfFolderPath nvarchar(MAX) = 'D:\Test-DBs\mdf-file\'
 		,@ldfFolderPath nvarchar(MAX) = 'D:\Test-DBs\ldf-file\'
@@ -109,8 +111,13 @@ FETCH NEXT FROM bakFileCursor INTO @fileName
 WHILE @@FETCH_STATUS = 0
 BEGIN
 	SET @bakfilePath = '' + @folderPath + @fileName + '.bak\'
-	SET @mdffilePath = '' + @mdfFolderPath + @fileName + '.mdf'''
-	SET @ldffilePath = '' + @ldfFolderPath + @fileName + '.ldf'''
+	SET @mdffilePath = '' + @mdfFolderPath + @fileName + '.mdf\'''
+	SET @ldffilePath = '' + @ldfFolderPath + @fileName + '.ldf\'''
+	SET @DBName = '[' + @fileName + ']'
+
+	PRINT @bakfilePath
+	PRINT @mdffilePath
+	PRINT @ldffilePath
 
 	CREATE TABLE #FileListHeaders (     
 		 LogicalName nvarchar(128)
@@ -143,7 +150,8 @@ BEGIN
 		ALTER TABLE #FileListHeaders ADD SnapshotURL nvarchar(360) NULL
 	END
 
-	DECLARE @whatIsThisShit nvarchar(MAX) = 'RESTORE FILELISTONLY FROM DISK = ''' + @bakfilePath + ''
+	DECLARE @whatIsThisShit nvarchar(MAX) = 'RESTORE FILELISTONLY FROM DISK = ''' + @bakfilePath + ''''
+	PRINT @whatIsThisShit
 	INSERT INTO #FileListHeaders
 		EXEC(@whatisThisShit)
 
@@ -152,18 +160,21 @@ BEGIN
 	SET @dataLogicalName = '' + @dataLogicalName + ''
 	SET @logLogicalName = '' + @logLogicalName + ''
 
+	PRINT @dataLogicalName
+	PRINT @logLogicalName
+
 	DROP TABLE #FileListHeaders
 
 	-- 21/10/2020 18:31 Nguyen Hoang Nam: Xem xet thay doi ham RESTORE thanh REPLACE RESTORE de replace Database 
 	-- 22/10/2020 11:33 Nguyen Hoang Nam: Su dung WITH MOVE de move ldf+mdf file sang location moi va REPLACE de thay Database da exist trong sys.database
 	-- Can phai check SQL version cua database voi SQL version cua Instance
-	RESTORE DATABASE @fileName
+	RESTORE DATABASE @DBName
 		FROM DISK = @bakfilePath
 		
 		-- RESTORE database se can phai move file mdf va log file sang path moi
 		WITH MOVE @dataLogicalName TO @mdffilePath,
 		MOVE @logLogicalName TO @ldffilePath,
-		REPLACE, RECOVERY, STATS = 20
+		REPLACE, NOUNLOAD, STATS = 20
 
 	FETCH NEXT FROM bakFileCursor INTO @fileName
 END;
