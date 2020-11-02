@@ -36,8 +36,8 @@ DECLARE @dirTable3Columns TABLE (
 -- @dirTable3Columns cat du lieu tu @#tempStoredDirTable thanh dung form dung columns
 INSERT INTO @dirTable3Columns
 	SELECT
-		CONVERT(Datetime,(left(pureData, 20))) CreateDate,
-		FilePath2.FilePath + '\' + right(pureData,LEN(pureData)-39) Filename
+		CONVERT(Datetime,(left(pureData, 20))) CreateDate
+		,FilePath2.FilePath + '\' + right(pureData,LEN(pureData)-39) Filename
 	FROM #tempStoredDirTable
 	CROSS APPLY (
 	SELECT
@@ -48,8 +48,8 @@ INSERT INTO @dirTable3Columns
 		and FilePaths.LineID < #tempStoredDirTable.LineID) FilePath1
 	JOIN (
 	SELECT
-		LineID, 
-		RIGHT(pureData, LEN(pureData)-14
+		LineID
+		,RIGHT(pureData, LEN(pureData)-14
 	) FilePath
     FROM #tempStoredDirTable FilePaths
     WHERE LEFT(pureData,14)=' Directory of '
