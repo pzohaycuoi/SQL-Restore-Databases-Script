@@ -24,9 +24,7 @@ DECLARE @dbs NVARCHAR(1000),
 DECLARE dbcursor CURSOR FOR
 	SELECT	name
 	FROM	sys.databases
-	WHERE	name NOT IN ('master','tempdb','model','msdb','AACC_HN',
-			'VINATAX','VINATAX_BK','VINATAX_CG','VINATAX_HN','VINATAX1',
-			'VINATAX2');
+	WHERE	name NOT IN ('master','tempdb','model','msdb');
 
 OPEN dbcursor
 
